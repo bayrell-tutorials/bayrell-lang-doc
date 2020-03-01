@@ -1,0 +1,232 @@
+/*!
+ *  Bayrell Documentation
+ *
+ *  (c) Copyright 2018-2020 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace App.UI;
+
+use Runtime.CoreStruct;
+use Runtime.MessageRPC;
+use Runtime.RuntimeUtils;
+use Runtime.Web.Component;
+use Runtime.Web.LayoutModel;
+use Runtime.Web.RenderHelper;
+
+
+class Header extends Component
+{
+	
+	/**
+	 * Returns module name
+	 */
+	lambda string moduleName() => "App";
+	
+	
+	
+	/**
+	 * Component css
+	 */
+	lambda string css(Dict<string> vars) => 
+		@css{
+			%header {
+				margin-bottom: 40px;
+				background: #fff;
+				-webkit-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.2);
+				-moz-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.2);
+				box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.2);
+			}
+			%header_logo, %header_menu, %header_network {
+				display: inline-block;
+				vertical-align: middle;
+			}
+			%header_logo {
+				width: 240px;
+				font-weight: bold;
+				font-size: 18px;
+			}
+			%header_logo_image{
+				height: 60px;
+			}
+			%header_logo_site_name{}
+				
+			%header_logo h1{
+				display: inline-block;
+			}
+			
+			%header_menu {
+				width: calc(100% - 410px);
+				text-align: center;
+			}
+			%header_menu ul{ margin: 0; padding: 0; }
+			%header_menu li{
+				margin: 0; padding: 0;
+				display: inline-block;
+				vertical-align: middle;
+				margin: 5px 10px;
+				font-size: 16px;
+			}
+			
+			%header_network {
+				width: 160px;
+				text-align: right;
+			}
+			%header_title{
+				font-weight: bold;
+				font-size: 16px;
+				padding-bottom: 5px;
+			}
+			%header_network_icons{}
+			
+			%header_network_icon {
+				display: inline-block;
+				vertical-align: middle;
+				margin-left: 2px;
+				margin-right: 2px;
+			}
+			%header_network_icon img{
+				width: 32px;
+				height: 32px;
+			}
+			
+			%header_search{
+				display: none;
+				position: relative;
+				padding-left: 5px;
+				padding-right: 5px;
+				max-width: 400px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			%header_input{
+				width: 100%;
+				padding-right: 40px;
+				padding: 5px 15px;
+				background-color: transparent;
+				border: 0px transparent solid;
+				border-bottom: 1px #d0d0d0 solid;
+				font-size: 16px;
+				outline: 0;
+			}
+			%header_icon{
+				cursor: pointer;
+				position: absolute;
+				right: 0px;
+				top: 0px;
+			}
+			
+			@media (max-width: 800px){
+				%header_search{
+					display: block;
+					margin-top: 10px;
+				}
+			}
+			
+			@media (max-width: 700px){
+				%header_item{
+					margin-top: 10px;
+					margin-bottom: 10px;
+				}
+				%header_item:first-child{
+					margin-top: 0px;
+				}
+				%header_item:last-child{
+					margin-bottom: 0px;
+				}
+				%header_logo, %header_menu, %header_network {
+					display: block;
+					text-align: center;
+					width: 100%;
+				}
+				%header_search{
+					margin-top: 20px;
+				}
+			}
+			
+		}
+	;
+	
+	
+	
+	/**
+	 * Component render
+	 */
+	lambda html render(LayoutModel layout, LayoutModel model, Dict params, html content)
+	{
+		return
+		<div @class="header_item header_logo">
+			<a @class="header_logo_link" href="/ru/" rel="home">
+				<img @class="header_logo_image" src="/assets/App/resources/images/logo1-small2.png" />
+			</a>
+		</div>
+		
+		<div @class="header_item header_menu">
+			<ul @class="header_menu_items">
+				<li @class="header_menu_item">
+					<a href="https://blog.bayrell.org/ru/">
+						IT Блог
+					</a>
+				</li>
+				<li @class="header_menu_item">
+					<a href="https://blog.bayrell.org/ru/online-education">
+						Онлайн<br />обучение
+					</a>
+				</li>
+				<li @class="header_menu_item">
+					<a href="https://docs.bayrell.org/">
+						Документация
+					</a>
+				</li>
+				<li @class="header_menu_item">
+					<a href="https://blog.bayrell.org/ru/links">
+						Ссылки на проекты
+					</a>
+				</li>
+				<li @class="header_menu_item">
+					<a href="https://blog.bayrell.org/ru/about">
+						Обо мне
+					</a>
+				</li>
+			</ul>
+		</div>
+		
+		<div @class="header_item header_network">
+			<div @class="header_network_icons">
+				<a href="https://github.com/bayrell" target="_blank" @class="header_network_icon">
+					<img src="/assets/App/resources/images/GitHub-Mark-64px.png"/>
+				</a>
+				
+				<a href="https://www.facebook.com/bayrell.org/" target="_blank" @class="header_network_icon">
+					<img src="/assets/App/resources/images/facebook_64x64.png"/>
+				</a>
+				
+				<a href="https://www.instagram.com/vistoyn/" target="_blank" @class="header_network_icon">
+					<img src="/assets/App/resources/images/instagram_64x64.png"/>
+				</a>
+				
+				<a href="https://vk.com/bayrell" target="_blank" @class="header_network_icon">
+					<img src="/assets/App/resources/images/vk_64x64.png"/>
+				</a>
+			</div>
+		</div>
+		
+		<div @class="header_item header_search">
+			<input @class="header_search_input" placeholder="поиск по сайту" value=""/>
+			<svg @class="header_search_icon" height="32px" version="1.1" viewBox="0 0 32 32" width="32px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1"><g fill="#929292" id="icon-111-search"><path d="M19.4271164,21.4271164 C18.0372495,22.4174803 16.3366522,23 14.5,23 C9.80557939,23 6,19.1944206 6,14.5 C6,9.80557939 9.80557939,6 14.5,6 C19.1944206,6 23,9.80557939 23,14.5 C23,16.3366522 22.4174803,18.0372495 21.4271164,19.4271164 L27.0119176,25.0119176 C27.5621186,25.5621186 27.5575313,26.4424687 27.0117185,26.9882815 L26.9882815,27.0117185 C26.4438648,27.5561352 25.5576204,27.5576204 25.0119176,27.0119176 L19.4271164,21.4271164 L19.4271164,21.4271164 Z M14.5,21 C18.0898511,21 21,18.0898511 21,14.5 C21,10.9101489 18.0898511,8 14.5,8 C10.9101489,8 8,10.9101489 8,14.5 C8,18.0898511 10.9101489,21 14.5,21 L14.5,21 Z" id="search"></path></g></g></svg>
+		</div>
+;
+	}
+	
+}

@@ -1,0 +1,142 @@
+/*!
+ *  Bayrell Documentation
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace App;
+
+use Runtime.Context;
+use Runtime.CoreStruct;
+use Runtime.RuntimeConstant;
+use Runtime.RuntimeUtils;
+use Runtime.Web.Backend.BackendHelper;
+use Runtime.Web.Backend.LocalBusProvider;
+use Runtime.Web.Request;
+use Runtime.Web.Route;
+use Runtime.Web.RenderContainer;
+
+
+struct AppServer extends Context
+{
+	
+	/**
+	 * Returns app name
+	 */
+	lambda string appName() => "App";
+	
+	
+	
+	/**
+	 * Returns context settings
+	 * @return Dict<string>
+	 */
+	pure Dict<string> getSettings(Dict env) => 
+	{
+		"modules":
+		[
+			"App",
+			"Runtime.Web.Backend",
+		],
+		"config":
+		{
+		},
+		"secrets":
+		{
+		},
+		"providers":
+		{
+		},
+	};
+	
+	
+	
+	/**
+	 * Extends entities
+	 */
+	pure Collection<CoreStruct> getEntities(Collection<CoreStruct> entities) =>
+	[
+	];
+	
+	
+	
+	/**
+	 * Extends entities
+	 */
+	pure Collection<CoreStruct> extendEntities(Context c, Collection<CoreStruct> entities)
+		=> entities
+	;
+	
+	
+	
+	/**
+	 * Init context
+	 */
+	static Context init(Context c)
+	{
+		return parent::init(c);
+	}
+	
+	
+	
+	/**
+	 * Start context
+	 */
+	static async Context start(Context c)
+	{
+		return await parent::start(c);
+	}
+	
+	
+	
+	/**
+	 * Run request
+	 */
+	static async RenderContainer request(Context c, Request request)
+	{
+		c->log_timer("start request");
+	
+		Route route = null;
+		Dict<string> params = null;
+		Collection<Route> routes = RenderContainer::getRoutes(c.entities);
+		
+		c->log_timer("before findRoute");
+		
+		/* Search route */
+		list res = RenderContainer::findRoute(routes, request);
+		route = res.item(0); params = res.item(1);
+		
+		c->log_timer("after findRoute");
+		
+		/* Create render container  */
+		RenderContainer container = new RenderContainer
+		{
+			"request": request,
+			"route": route,
+			"route_params": params,
+		};
+		
+		c->log_timer("before chain");
+		
+		/* Render route */
+		container = await static::chainAwait(c, RenderContainer::RENDER_CHAIN, [ container ]);
+		
+		c->log_timer("after chain");
+		
+		/* Result */
+		return container;
+	}
+	
+}

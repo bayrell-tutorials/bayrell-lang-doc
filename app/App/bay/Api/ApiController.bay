@@ -1,0 +1,95 @@
+/*!
+ *  Bayrell Documentation
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace App.Api;
+
+use Runtime.MessageRPC;
+use Runtime.RuntimeUtils;
+use Runtime.FileSystem.FileProviderInterface;
+use Runtime.Web.Annotations.ApiList;
+use Runtime.Web.Annotations.ApiMethod;
+use App.Model.Document;
+
+
+@ApiList{ "api_name": "App" }
+class ApiController
+{
+
+	#ifdef BACKEND then
+	
+	
+	/**
+	 * Returns content of the document
+	 */
+	static async string getDocumentContent(string path)
+	{
+		string chroot = rtl::getModulePath("App") ~ "/data/docs";
+		string document_path = path ~ ".txt";
+		string content = await rtl::readLocalFile(document_path, "utf8", chroot);
+		return content;
+	}
+	
+	
+	
+	/**
+	 * Parse document content
+	 */
+	static Document parseDocumentContent(string document_content)
+	{
+		Dict json = null;
+		string content = "";
+		
+		int pos = rs::strpos(document_content, "%{");
+		if (pos >= 0)
+		{
+			int pos2 = rs::strpos(document_content, "}%");
+			if (pos2 >= 0)
+			{
+				string json_content = rs::substr(document_content, 1, pos2);
+				json = RuntimeUtils::json_decode(json_content);
+				content = rs::trim(rs::substr(document_content, pos2 + 2));
+			}
+		}
+		
+		return new Document
+		{
+			"content": content,
+			"title": (json != null) ? json.get("title", "") : "",
+		};
+	}
+	
+	
+	
+	/**
+	 * Return content of the document
+	 * @return MessageRPC
+	 */
+	@ApiMethod{ "space_name": "ApiInterface", "method_name": "getDocument" }
+	static async MessageRPC getDocument(MessageRPC msg)
+	{
+		string document_path = rtl::attr(msg, ["data", "document"], "");
+		string document_content = await static::getDocumentContent(document_path);
+		Document document = static::parseDocumentContent(document_content);
+		document <= path <= document_path;
+		return msg->success(document);
+	}
+	
+	#endif
+	
+}
+

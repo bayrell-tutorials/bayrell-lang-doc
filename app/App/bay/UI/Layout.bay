@@ -1,0 +1,292 @@
+/*!
+ *  Bayrell Documentation
+ *
+ *  (c) Copyright 2018-2020 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace App.UI;
+
+use Runtime.CoreStruct;
+use Runtime.MessageRPC;
+use Runtime.RuntimeUtils;
+use Runtime.Web.Component;
+use Runtime.Web.LayoutModel;
+use Runtime.Web.RenderHelper;
+use Runtime.Web.Events.Mouse.MouseClickEvent;
+use App.UI.Header;
+
+
+class Layout extends Component
+{
+	
+	/**
+	 * Returns module name
+	 */
+	lambda string moduleName() => "App";
+	
+	
+	
+	/**
+	 * Required components
+	 */
+	lambda Collection<string> components() => 
+	[
+		classof Header,
+	];
+	
+	
+	
+	/**
+	 * Component css
+	 */
+	lambda string css(Dict<string> vars) => 
+		@css{
+			*{box-sizing: border-box;}body{margin:0;padding:0;}
+			a { text-decoration: inherit; color: #0000d0; cursor: pointer; }
+			a:hover, a:visited:hover { text-decoration: underline; color: red; }
+			a:visited { text-decoration: inherit; color: #0000d0; }
+			a.link { text-decoration: none; color: #0000d0; cursor: pointer; }
+			a.link:hover, a.link:visited:hover { text-decoration: underline; color: red; }
+			a.link:visited { text-decoration: none; color: #0000d0; }
+			body, html{
+				background-color: #F2F2F2;
+				font-family: 'Ubuntu', sans-serif;
+				font-size: 14px;
+				width: 100%;
+				padding: 0;
+				margin: 0;
+			}
+			%header{
+				margin-bottom: 40px;
+				background: #fff;
+				-webkit-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.2);
+				-moz-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.2);
+				box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.2);
+			}
+			%section_wrap{
+				position: relative;
+				max-width: 1200px;
+				margin-left: auto;
+				margin-right: auto;
+				padding: 20px 0px;
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+			%footer %section_wrap{
+				text-align: center;
+			}
+			%header_title{
+				font-weight: bold;
+				font-size: 18px;
+			}
+			%header_title a, %header_title span{
+				display: inline-block;
+				vertical-align: middle;
+			}
+			%header_logo_link{}
+			%header_title{}
+			%content-left, %content-right{
+				display: inline-block;
+				vertical-align: top;
+			}
+			%content-left{
+				width: 345px;
+				padding-right: 20px;
+			}
+			%content-right{
+				width: calc(100% - 365px);
+				background: #fff;
+				border-radius: 6px;
+				-webkit-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.3);
+				-moz-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.3);
+				box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.3);
+				padding: 20px;
+			}
+			%widget{
+				position: relative;
+				background: #fff;
+				border-radius: 6px;
+				-webkit-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.3);
+				-moz-box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.3);
+				box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.3);
+				padding: 20px;
+				margin-bottom: 20px;
+			}
+			%widget-title{
+				font-weight: bold;
+			}
+			%widget-content{
+				padding-top: 10px;
+			}
+			%menu-href{
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+			ul%menu{
+				padding: 0;
+				margin: 0;
+				margin-top: 0;
+				margin-bottom: 10px;
+				padding-left: 20px;
+			}
+			ul%menu li{
+				padding-bottom: 5px;
+			}
+		}
+	;
+	
+	
+	
+	/**
+	 * Component render
+	 */
+	lambda html render(LayoutModel layout, LayoutModel model, Dict params, html content)
+	{
+		string class_name = model.page_class;
+		return
+			<header @class='section section--header header' @key='header'>
+				<div @class='section_wrap'>
+					<Header @model={ model }/>
+				</div>
+			</header>
+			<section @class='section section--content content' @key='content'>
+				<div @class='section_wrap'>
+					
+					<div @class='content-left' @key='left'>
+						
+						{
+							static::widget
+							(
+								layout,
+								"menu",
+								"Меню",
+								static::menuContent(layout, [
+									{
+										"href": "main/index",
+										"title": "Главная",
+									},
+									{
+										"href": "main/index2",
+										"title": "Главная2",
+									}
+								])
+							)
+						}
+						
+					</div>
+					
+					<div @class='content-right' @key='right'>
+						<{class_name} @bind="page_model" @key="page"></{class_name}>
+					</div>
+				</div>
+			</section>
+			<footer @class='section section--footer footer' @key='footer'>
+				<div @class='section_wrap'>
+					(c) 2017 - 2020 Ildar Bikmamatov
+				</div>
+			</footer>
+		;
+	}
+	
+	
+	
+	/**
+	 * Widget
+	 */
+	lambda html widget(LayoutModel layout, string key, string title, html content) =>
+		<div @class='widget'>
+			<div @class='widget-title'>{ title }</div>
+			<div @class='widget-content'>
+				{ content }
+			</div>
+		</div>
+	;
+	
+	
+	
+	/**
+	 * Menu
+	 */
+	lambda html menu(LayoutModel layout, string href, string title) =>
+		<a 
+			@class='menu-href'
+			@eventAsync:MouseClickEvent='menuClick'
+			data-href={ href }
+		>
+			{ title }
+		</a>
+	;
+	
+	
+	
+	/**
+	 * Menu content
+	 */
+	lambda html menuContent(LayoutModel layout, Collection menu) =>
+		<ul @class='menu'>
+		{
+			menu.map
+			(
+				html (Dict params, int index) use (layout) =>
+					<li @class='menu-item' @key={ index }>
+						{ static::menu(layout, params.get("href", ""), params.get("title", "")) }
+					</li>
+			)
+		}
+		</ul>
+	;
+	
+	
+	
+	#ifdef FRONTEND then
+	
+	/**
+	 * Menu click
+	 */
+	async void menuClick(MouseClickEvent e)
+	{
+		string href = e.target.hasAttributes("data-href") ? e.target.attributes["data-href"].value : "";
+		
+		MessageRPC msg = await @->sendMessage
+		(
+			new MessageRPC
+			{
+				"api_name": "App",
+				"space_name": "ApiInterface",
+				"method_name": "getDocument",
+				"data":
+				{
+					"document": href,
+				},
+			}
+		);
+		
+		log(msg);
+		
+		if (msg->isSuccess())
+		{
+			this.updateModelData(["page_model", "document"], msg.response);
+		}
+		else
+		{
+			this.updateModelData(["page_model", "document"], null);
+		}
+		
+	}
+	
+	#endif
+}
