@@ -82,6 +82,7 @@ class IndexPage extends Component
 		/* Create model */
 		container <= layout <= page_class <= classof IndexPage;
 		container <= layout <= page_model <= model;
+		container <= layout <= f_inc <= 10;
 		
 		return container;
 	}

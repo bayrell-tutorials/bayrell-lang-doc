@@ -182,6 +182,10 @@ class Layout extends Component
 									{
 										"href": "main/index2",
 										"title": "Главная2",
+									},
+									{
+										"href": "main/todolist",
+										"title": "TODO List",
 									}
 								])
 							)
