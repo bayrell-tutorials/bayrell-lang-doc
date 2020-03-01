@@ -1,0 +1,40 @@
+Options None +SymLinksIfOwnerMatch
+
+#php_flag display_errors on
+#php_flag display_startup_errors On
+#php_value error_reporting "-1"
+
+<IfModule rewrite_module>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/favicon.ico$
+    RewriteCond %{REQUEST_URI} !^/favicon.png$
+    RewriteCond %{REQUEST_URI} !^/index.php$
+    RewriteCond %{REQUEST_URI} !^/assets
+    RewriteCond %{REQUEST_URI} !^/robots.txt$
+    RewriteCond %{REQUEST_URI} !^/sitemap.xml$
+    RewriteRule  ^. /index.php [L]
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+</IfModule>
+
+DirectoryIndex index.php
+
+<FilesMatch "\.(js|css|bmp|jpeg|jpg|png|woff|svg)$">
+    Header set Cache-Control "max-age=2592000, must-revalidate"
+</FilesMatch>
+
+<ifModule mod_gzip.c>
+    mod_gzip_on Yes
+    mod_gzip_dechunk Yes
+        mod_gzip_item_include  mime  ^text/html$
+        mod_gzip_item_include  mime  ^text/css$
+        mod_gzip_item_include  mime  ^text/javascript$
+        mod_gzip_item_include  mime  ^image/svg+xml$
+        mod_gzip_item_include  mime  ^application/javascript$
+        mod_gzip_item_include  mime  ^application/x-javascript$
+        mod_gzip_item_include  file  \.(html|css|js|php|svg)$
+</ifModule>
+
+<FilesMatch "\.(css|js)$">
+   AddDefaultCharset utf8
+   DefaultLanguage en-US
+</FilesMatch>
