@@ -22,6 +22,8 @@ use Runtime.Context;
 use Runtime.CoreStruct;
 use Runtime.RuntimeConstant;
 use Runtime.RuntimeUtils;
+use Runtime.Annotations.LambdaChain;
+use Runtime.Annotations.LambdaChainDeclare;
 use Runtime.Web.Backend.BackendHelper;
 use Runtime.Web.Backend.LocalBusProvider;
 use Runtime.Web.Request;
@@ -31,6 +33,9 @@ use Runtime.Web.RenderContainer;
 
 struct AppServer extends Context
 {
+	
+	string metrika = "";
+	
 	
 	/**
 	 * Returns app name
@@ -68,7 +73,26 @@ struct AppServer extends Context
 	 */
 	pure Collection<CoreStruct> getEntities(Collection<CoreStruct> entities) =>
 	[
+		/* Render body scripts */
+		new LambdaChain
+		{
+			"name": RenderContainer::PATTERN_BODY_AFTER,
+			"value": "App.AppServer::renderMetrika",
+			"pos": 9999,
+		},
 	];
+	
+	
+	
+	/**
+	 * Render metrika in body after
+	 */
+	lambda string renderMetrika(RenderContainer container, string content)
+	{
+		return 
+			content ~ @.metrika
+		;
+	}
 	
 	
 	
@@ -96,6 +120,12 @@ struct AppServer extends Context
 	 */
 	static async Context start(Context c)
 	{
+		/* Read metrika */
+		if (c->env("METRIKA", false) == true)
+		{
+			string chroot = rtl::getModulePath("App") ~ "/data/templates";
+			c <= metrika <= await rtl::readLocalFile("metrika.html", "utf8", chroot);
+		}
 		return await parent::start(c);
 	}
 	
@@ -107,12 +137,13 @@ struct AppServer extends Context
 	static async RenderContainer request(Context c, Request request)
 	{
 		c->log_timer("start request");
-	
+		
 		Route route = null;
 		Dict<string> params = null;
 		Collection<Route> routes = RenderContainer::getRoutes(c.entities);
-		
 		c->log_timer("before findRoute");
+		
+		/* log(routes); */
 		
 		/* Search route */
 		list res = RenderContainer::findRoute(routes, request);

@@ -1,0 +1,221 @@
+%{
+"title": "HTML шаблонизатор",
+"description": "HTML шаблонизатор",
+"mime": "text/html"
+}%
+
+
+<h1>HTML шаблонизатор</h1>
+
+<p>В язык программирования встроена возможность писать HTML и CSS прямо в коде. Транслятор, автоматически транслирует код в php и js, так чтобы он работал на сервере и браузере, и одинаково отображал верстку. В JS также доступны обработчики события. Обновление HTML кода на клиенте происходит путем патчинга HTML дерева через RenderDriver.</p>
+
+<p>
+	Листинг кода приведен в конце.
+</p>
+
+<h2>Принцип работы</h2>
+
+<p>
+	Чтобы отрисовать страницу нужна модель, и функция рендера. Модель хранит данные страницы.
+</p>
+<p><u>Модель страницы</u> - <a href='/ru/lang/struct.html'>неизменяемая структура данных</a>. Чтобы изменить страницу, нужно изменить модель, вызвав функцию <code>this.updateModel(Dict map)</code> или <code>this.setModel(CoreStruct model)</code> в обаботчике событий компонента. После этого будет создана новая модель, и отправлен запрос на перерисовку страницы.
+</p>
+
+<p>
+	Перерисовка страницы происходит через RenderDriver, используя requestAnimationFrame, путем вызова функции render у каждого компонента, который нужно перерисовать. В функции render происходить патч HTML дерева.
+</p>
+
+<p>
+	Данный метод не использует Virtual DOM, как это сделано, например, в React JS. Render Driver напрямую патчит HTML через функцию render компонента.
+</p>
+
+
+<h2>Точка входа</h2>
+
+<p>
+	Функция <code>static async RenderContainer IndexPage(RenderContainer container)</code> является точкой входа в программу. <code>@Route{ "uri": "/" }</code> задает маршрут точку входа в функцию.
+</p>
+<p>
+	Данная функция создает модель IndexPageModel, и задает title для страницы.<br/>
+	f_inc - обновляет css и js, добавляет ?_=number к загружаемым css и js файлам.
+</p>
+
+
+<h2>CSS</h2>
+
+<p>
+	CSS страницы описан в теге функции <code>css()</code>. Выражение <code>%content</code> означает, что будет сформирован content-f224, где f224 это хэш класса. Это нужно, чтобы одинаковые css селекторы разных классов не пересекались.</br>
+	Чтобы прописать этот css в html теге нужно указать: <code>&lt;div @class='content'&gt;</code>
+</p>
+
+
+<h2>Render</h2>
+
+<p>
+	Отрисовка HTML происходит в функции: <code>render(LayoutModel layout, IndexPageModel model, Dict params, html content)</code><br/>
+</p>
+<p>
+	<b>Параметры функции:</b><br/>
+	<ul>
+		<li>LayoutModel - модель шаблона</li>
+		<li>IndexPageModel - модель компонента</li>
+		<li>Dict params - параметры, которые были переданы в компонент</li>
+		<li>html content - контент, который был передан в компонент</li>
+	</ul>
+</p>
+<p>
+	К примеру, если вызвать компонент
+	<code>&lt;Button kind='success' @event:MouseClickEvent='onMouseClick'&gt;Save&lt;/Button&gt;</code>, то:<br/>
+	в params будет содержаться kind='success'<br/>
+	в content будет содержаться текст Save
+</p>
+<p>
+Другой пример:
+<code>
+	&lt;Dialog @bind="dialog" @ref="dialog" style="promt" 
+		@event:DialogEvent="onDialogEvent"
+	/&gt;
+</code></br>
+Будет отрисован компонент Dialog.
+</p>
+
+
+<h2>Обработчики событий</h2>
+
+<p>
+	Выражение <code>@event:DialogEvent="onDialogEvent"</code> и <code>@event:MouseClickEvent='onMouseClick'</code>это обработчики событий. Если Dialog вызовет событие DialogEvent, то будет вызвана функция onDialogEvent у родительского компонента, который вызвал Dialog. И соответственно onMouseClick, при нажатии мыши.
+</p>
+<p>
+	Существуют два типа событий. Синхронные и асинхронные.</br>
+	Для синхронных нужно указывать <code>@event:MouseClickEvent='onMouseClick'</code></br>
+	Для асинхронных <code>@eventAsync:MouseClickEvent='onMouseClickAsync'</code></br>
+	Асинхронные позволяют делать аякс запросы к бэкенд.
+</p>
+<p>
+	Соответственно для асинхронных событий, обработчик будет выглядеть так: <code>async void menuClick(MouseClickEvent e)</code>
+</p>
+<p>
+	Код <code>e.cancel();</code> позволяет отменить дефолтное JS событие в браузере.
+</p>
+<p>Код:</p>
+<pre><code>this.updateModel
+{
+	"content": this.model.content ~ "!",
+};
+</code></pre>
+
+<p>
+Вносит изменения в модель, и отправляет вышестоящему компоненту событие, о том, что модель изменилась. Далее по цепочке вверх передается событие, с измененными моделями компонентов, и RenderDriver получает измененную LayoutModel. После этого RenderDriver отправляет запрос на перерисовку, используя requestAnimationFrame.
+</p>
+
+<h2>Пример кода</h2>
+
+<pre><code>namespace App.UI;
+
+use Runtime.MessageRPC;
+use Runtime.Web.Component;
+use Runtime.Web.LayoutModel;
+use Runtime.Web.RenderContainer;
+use Runtime.Web.RenderHelper;
+use Runtime.Web.Annotations.Route;
+use Runtime.Web.Annotations.RouteList;
+use Runtime.Web.Annotations.Template;
+use Runtime.Web.Button.Button;
+use App.Model.IndexPageModel;
+
+
+@RouteList{}
+@Template{ "model_name": classof IndexPageModel }
+class IndexPage extends Component
+{
+	
+	/**
+	 * Returns module name
+	 */
+	lambda string moduleName() => "App";
+	
+	
+	
+	/**
+	 * Route Action
+	 * @return WebContainer
+	 */
+	@Route{ "uri": "/" }
+	static async RenderContainer IndexPage(RenderContainer container)
+	{
+		IndexPageModel model = new IndexPageModel
+		{
+			"content": "Hello world",
+		};
+		
+		/* Set title */
+		container <= layout <= title <= "Hello world !!!";
+		
+		/* Create model */
+		container <= layout <= page_class <= classof IndexPage;
+		container <= layout <= page_model <= model;
+		container <= layout <= f_inc <= 1;
+		
+		return container;
+	}
+	
+	
+	
+	/**
+	 * Returns required components
+	 */
+	lambda Collection<string> components() =>
+	[
+		classof Button,
+	];
+	
+	
+	
+	/**
+	 * Component css
+	 */
+	lambda string css(Dict<string> vars) =>
+		@css{
+			%content{
+				text-align: center;
+				padding-top: 50px;
+			}
+			%label{
+				padding-bottom: 5px;
+			}
+			%input{
+				padding: 5px 10px;
+			}
+		}
+	;
+	
+	
+	
+	/**
+	 * Component render
+	 */
+	lambda html render(LayoutModel layout, IndexPageModel model, Dict params, html content) =>
+	
+		&lt;div @class='content' @key='content'&gt;
+			&lt;div @class='label'>@{ model.content }&lt;/div&gt;
+			&lt;input @class='input' @bind="content" &lt;/input&gt;
+			&lt;Button @event:MouseClickEvent='onMouseClick'&gt;Click Me!&lt;/Button&gt;
+		&lt;/div&gt;
+	;
+	
+	
+	
+	/**
+	 * Mouse click event
+	 */
+	void onMouseClick(MouseClickEvent e)
+	{
+		e.cancel();
+		this.updateModel
+		{
+			"content": this.model.content ~ "!",
+		};
+	}
+	
+	
+}</code></pre>

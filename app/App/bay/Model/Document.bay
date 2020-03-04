@@ -24,6 +24,7 @@ use Runtime.CoreStruct;
 struct Document extends CoreStruct
 {
 	string title = "";
+	string description = "";
 	string content = "";
 	string path = "";
 }

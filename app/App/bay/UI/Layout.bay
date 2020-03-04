@@ -25,7 +25,9 @@ use Runtime.Web.Component;
 use Runtime.Web.LayoutModel;
 use Runtime.Web.RenderHelper;
 use Runtime.Web.Events.Mouse.MouseClickEvent;
+use App.Model.Document;
 use App.UI.Header;
+use App.UI.Lib;
 
 
 class Layout extends Component
@@ -53,6 +55,7 @@ class Layout extends Component
 	 */
 	lambda string css(Dict<string> vars) => 
 		@css{
+			@import url('https://fonts.googleapis.com/css?family=Ubuntu:400,700&display=swap');
 			*{box-sizing: border-box;}body{margin:0;padding:0;}
 			a { text-decoration: inherit; color: #0000d0; cursor: pointer; }
 			a:hover, a:visited:hover { text-decoration: underline; color: red; }
@@ -140,11 +143,19 @@ class Layout extends Component
 				padding: 0;
 				margin: 0;
 				margin-top: 0;
-				margin-bottom: 10px;
 				padding-left: 20px;
 			}
 			ul%menu li{
 				padding-bottom: 5px;
+			}
+			ul%menu li.subitems{
+				padding-bottom: 10px;
+			}
+			ul%menu li:last-child{
+				padding-bottom: 0px;
+			}
+			ul%menu ul%menu{
+				padding-top: 5px;
 			}
 		}
 	;
@@ -176,15 +187,62 @@ class Layout extends Component
 								"Меню",
 								static::menuContent(layout, [
 									{
-										"href": "main/index",
+										"href": "/ru/",
 										"title": "Главная",
 									},
 									{
-										"href": "main/index2",
-										"title": "Главная2",
+										"href": "/ru/lang/index.html",
+										"title": "Язык программирования BAYRELL Language",
+										"items": [
+											
+											{
+												"href": "/ru/lang/index.html",
+												"title": "Что такое BAYRELL Language?",
+											},
+											
+											{
+												"href": "/ru/lang/template.html",
+												"title": "Встроенный в язык HTML шаблонизатор",
+											},
+											
+											{
+												"href": "/ru/lang/lambda.html",
+												"title": "Функциональное программирование",
+											},
+											
+											{
+												"href": "/ru/lang/struct.html",
+												"title": "Неизменяемые структуры данных",
+											},
+											
+										],
 									},
 									{
-										"href": "main/todolist",
+										"href": "/ru/runtime/index.html",
+										"title": "BAYRELL Runtime Library",
+										"items": [
+											{
+												"href": "/ru/lang/examples.html",
+												"title": "Примеры проектов",
+											},
+											{
+												"href": "/ru/lang/project-struct.html",
+												"title": "Структура проекта",
+											},
+										],
+									},
+									{
+										"href": "/ru/bayrell-os/index.html",
+										"title": "BAYRELL OS",
+										"items": [
+											{
+												"href": "/ru/bayrell-os/index.html",
+												"title": "Описание BAYRELL OS",
+											},
+										],
+									},
+									{
+										"href": "/ru/main/todolist.html",
 										"title": "TODO List",
 									}
 								])
@@ -229,7 +287,7 @@ class Layout extends Component
 		<a 
 			@class='menu-href'
 			@eventAsync:MouseClickEvent='menuClick'
-			data-href={ href }
+			data-href={ href } href={ href }
 		>
 			{ title }
 		</a>
@@ -245,10 +303,16 @@ class Layout extends Component
 		{
 			menu.map
 			(
-				html (Dict params, int index) use (layout) =>
-					<li @class='menu-item' @key={ index }>
+				html (Dict params, int index) use (layout)
+				{
+					Collection subitems = params.get("items", null);
+					return <li @class='menu-item' class={ subitems != null ? "subitems" : "" } @key={ index }>
 						{ static::menu(layout, params.get("href", ""), params.get("title", "")) }
-					</li>
+						{
+							(subitems != null) ? static::menuContent(layout, subitems) : ""
+						}
+					</li>;
+				}
 			)
 		}
 		</ul>
@@ -263,6 +327,8 @@ class Layout extends Component
 	 */
 	async void menuClick(MouseClickEvent e)
 	{
+		e.cancel();
+		
 		string href = e.target.hasAttributes("data-href") ? e.target.attributes["data-href"].value : "";
 		
 		MessageRPC msg = await @->sendMessage
@@ -279,11 +345,24 @@ class Layout extends Component
 			}
 		);
 		
-		log(msg);
+		/*log(msg);*/
 		
 		if (msg->isSuccess())
 		{
-			this.updateModelData(["page_model", "document"], msg.response);
+			Document document = msg.response;
+			string title = Lib::getTitle(document);
+			string description = Lib::getDescription(document);
+			
+			this.updateModelData(["page_model", "document"], document);
+			
+			#switch
+			#case ifcode ES6 then
+			var document = msg.response;
+			var obj = {};
+			history.pushState(obj, "", href);
+			#endswitch
+			
+			this.driver.setTitle(title);
 		}
 		else
 		{

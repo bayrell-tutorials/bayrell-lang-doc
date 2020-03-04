@@ -19,6 +19,7 @@
 namespace App.UI;
 
 use Runtime.Web.RenderContainer;
+use App.Model.Document;
 use App.UI.Layout;
 
 
@@ -34,4 +35,23 @@ class Lib
 		return "";
 	}
 	
+	
+	/**
+	 * Returns title
+	 */
+	public static string getTitle(Document document)
+	{
+		if (document == "") return "Документация BAYRELL";
+		return document.title ~ " | Документация BAYRELL";
+	}
+	
+	
+	/**
+	 * Returns description
+	 */
+	public static string getDescription(Document document)
+	{
+		if (document.description == "") return "Документация BAYRELL";
+		return document.description;
+	}
 }

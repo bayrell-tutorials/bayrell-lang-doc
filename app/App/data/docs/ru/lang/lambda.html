@@ -1,0 +1,88 @@
+%{
+"title": "Функциональное программирование",
+"description": "Функциональное программирование",
+"mime": "text/html"
+}%
+
+
+<h1>Функциональное программирование</h1>
+
+<p>
+	Пусть определен класс, с тремя функциями:
+	<ul>
+		<li>Lib::sum - вычисляет сумму двух чисел</li>
+		<li>Lib::isInstance - карировання функция, проверяет item на class_name</li>
+		<li>Lib::equal - карировання функция, проверяет item с value</li>
+	</ul>
+</p>
+
+<pre><code>namespace Test;
+
+class Lib
+{
+	
+	/**
+	 * Sum a + b
+	 */
+	lambda int sum(int a, int b) => a + b;
+	
+	
+	/**
+	 * Check object is istance
+	 */
+	lambda fn isInstance(string class_name) =>
+		bool (var item) use (class_name) => rtl::is_instanceof(item, class_name)
+	;
+	
+	
+	/**
+	 * Equal two value by key
+	 */
+	lambda fn equal(var value)
+		=> bool (var item) use (value)
+			=> item == value
+	;
+	
+	
+	/**
+	 * Equal two struct by key
+	 */
+	lambda fn equalNot(var value)
+		=> bool (var item) use (value)
+			=> item != value
+	;
+	
+}
+</code></pre>
+
+
+<p><b>Примеры</b></p>
+
+<pre><code>Collection<string> names = ["1", "2", "3", "2"];
+
+/* Оставим цифры, не равные 2 */
+Collection<string> names2 = names.filter( Lib::equalNot("2") );
+
+/* Найдем цифру 3 в массиве */
+int pos = names.find( Lib::equal("2") );
+</code></pre>
+
+<p>
+Найдем определенный класс в массиве
+</p>
+
+
+<pre><code>Collection<CoreStruct> classes = 
+[
+	new User{},
+	new Test{},
+	new Entity{},
+	new Route{},
+];
+
+/* Получим пользователя из массива */
+User user = (User) classes.find( Lib::isInstance(classof User) );
+
+/* Получим маршрут из массива */
+Route route = (Route) classes.find( Lib::isInstance(classof Route) );
+</code></pre>

@@ -21,6 +21,7 @@ namespace App.UI;
 use Runtime.MessageRPC;
 use Runtime.Web.Component;
 use Runtime.Web.LayoutModel;
+use Runtime.Web.RedirectResponse;
 use Runtime.Web.RenderContainer;
 use Runtime.Web.RenderHelper;
 use Runtime.Web.Annotations.Route;
@@ -28,6 +29,7 @@ use Runtime.Web.Annotations.RouteList;
 use Runtime.Web.Annotations.Template;
 use App.Models.Document;
 use App.UI.IndexPageModel;
+use App.UI.Lib;
 
 
 @RouteList{}
@@ -46,9 +48,29 @@ class IndexPage extends Component
 	 * Route Action
 	 * @return WebContainer
 	 */
-	@Route{ "uri": "/" }
+	@Route{ "uri": "/", "name": "site:main" }
 	static async RenderContainer IndexPage(RenderContainer container)
 	{
+		container <= response <= new RedirectResponse{ "redirect": "/ru/" };
+		return container;
+	}
+	
+	
+	
+	/**
+	 * Route Action
+	 * @return WebContainer
+	 */
+	@Route{ "uri": "/ru/", "name": "site:index" }
+	@Route{ "uri_match": "^\\/ru\\/(.*).html$", "name": "site:index2", "params": [ "prefix" ] }
+	static async RenderContainer IndexPage2(RenderContainer container)
+	{
+		string prefix = container.route_params.get("prefix", "");
+		prefix = rs::trim(prefix, "/");
+		if (prefix == "") prefix = "main/index";
+		prefix = prefix ~ ".html";
+		/* log (prefix); */
+		
 		MessageRPC msg = await @->sendMessage
 		(
 			new MessageRPC
@@ -58,18 +80,12 @@ class IndexPage extends Component
 				"method_name": "getDocument",
 				"data":
 				{
-					"document": "main/index",
+					"document": "/ru/" ~ prefix,
 				},
 			}
 		);
 		
-		string title = "";
 		Document document = msg->isSuccess() ? msg.response : null;
-		if (document)
-		{
-			title = document.title;
-		}
-		
 		IndexPageModel model = new IndexPageModel
 		{
 			"current_page": "main",
@@ -77,12 +93,13 @@ class IndexPage extends Component
 		};
 		
 		/* Set title */
-		container <= layout <= title <= "Документация";
+		container <= layout <= title <= Lib::getTitle(document);
+		container <= layout <= description <= Lib::getDescription(document);
 		
 		/* Create model */
 		container <= layout <= page_class <= classof IndexPage;
 		container <= layout <= page_model <= model;
-		container <= layout <= f_inc <= 10;
+		container <= layout <= f_inc <= 15;
 		
 		return container;
 	}
@@ -104,8 +121,64 @@ class IndexPage extends Component
 	lambda string css(Dict<string> vars) =>
 		@css{
 			%content{
+				position: relative;
+			}
+			%content h1, %content .h1{
+				display: block;
+				font-size: 2em;
+				margin: 0px;
+				line-height: 1.2;
+				text-align: center;
+				padding: 0;
+				margin-bottom: 1em;
+			}
+			%content h2, %content .h2{
+				display: block;
+				font-size: 1.5em;
+				margin: 0px;
+				line-height: 1.2;
+				text-align: left;
+				padding: 0;
+				margin-bottom: 0.5em;
+				margin-top: 1em;
+			}
+			%content h3, %content .h3{
+				display: block;
+				font-size: 1.17em;
+				margin: 0px;
+				line-height: 1.2;
+				text-align: left;
+				padding: 0;
+				margin-bottom: 0.5em;
+				margin-top: 1em;
 			}
 			%content p{
+				margin: 0;
+				margin-top: 0em;
+				margin-bottom: 1em;
+				line-height: 22px;
+			}
+			%content code{
+				display: inline-block;
+				padding: 0px 5px;
+				background: #F0F0F0;
+			}
+			%content pre{
+				word-wrap: break-word; /* IE7 */
+				-moz-tab-size: 4;
+				tab-size: 4;
+				padding: 0;
+				margin: 0;
+				margin-bottom: 1em;
+				overflow-x: auto;
+				background: #F0F0F0;
+				tab-size: 2;
+			}
+			%content pre code{
+				padding: 10px;
+			}
+			%content li{
+				margin-bottom: 5px;
 			}
 		}
 	;

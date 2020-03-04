@@ -1,0 +1,86 @@
+%{
+"title": "Неизменяемые структуры данных",
+"description": "Неизменяемые структуры данных",
+"mime": "text/html"
+}%
+
+
+<h1>Неизменяемые структуры данных</h1>
+
+<h2>Описание структуры</h2>
+
+<pre><code>namespace Test;
+
+use Runtime.CoreStruct;
+
+struct User extends CoreStruct
+{
+	string short_name = "";
+	string full_name = "";
+	string nick_name = "";
+	string Collection<string> emails = "";
+}
+</code></pre>
+
+
+<p>Создание объекта</p>
+
+<pre><code>User user = new User
+{
+	"short_name": "John",
+	"full_name": "John Smith",
+	"nick_name": "Jey",
+	"emails": [ "jey@example.com", "jey@localhost", ],
+};
+</code></pre>
+
+
+<p>Изменения объекта</p>
+
+<pre><code>/* Будет пересоздан объект user, с новым свойством */
+user <= short_name <= "John2";
+
+/* Будет создан объект user2, с новыми свойствами */
+User user2 = user.copy
+{
+	"full_name": "John Williams",
+	"emails": user.pushIm("willy@example.com") 
+}
+</code></pre>
+
+
+<h2>Вложенные структуры</h2>
+
+
+<pre><code>namespace Test;
+
+use Runtime.CoreStruct;
+
+struct Task extends CoreStruct
+{
+	string name = "";
+	User user = null;
+}
+</code></pre>
+
+
+<p>Создание объекта</p>
+
+<pre><code>Task task = new Task
+{
+	"name": "Task 1",
+	"user": new User
+	{
+		"short_name": "John",
+		"full_name": "John Smith",
+		"nick_name": "Jey",
+		"emails": [ "jey@example.com", "jey@localhost", ],
+	}
+};
+</code></pre>
+
+<p>Изменение вложенного объекта</p>
+
+<pre><code>/* Изменение имени, ответственного за задачу */
+task <= user <= short_name <= "John2";
+</code></pre>

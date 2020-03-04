@@ -205,19 +205,19 @@ class Header extends Component
 		<div @class="header_item header_network">
 			<div @class="header_network_icons">
 				<a href="https://github.com/bayrell" target="_blank" @class="header_network_icon">
-					<img src="/assets/App/resources/images/GitHub-Mark-64px.png"/>
+					<img src="/assets/App/resources/images/GitHub-Mark-64px.png" />
 				</a>
 				
 				<a href="https://www.facebook.com/bayrell.org/" target="_blank" @class="header_network_icon">
-					<img src="/assets/App/resources/images/facebook_64x64.png"/>
+					<img src="/assets/App/resources/images/facebook_64x64.png" />
 				</a>
 				
 				<a href="https://www.instagram.com/vistoyn/" target="_blank" @class="header_network_icon">
-					<img src="/assets/App/resources/images/instagram_64x64.png"/>
+					<img src="/assets/App/resources/images/instagram_64x64.png" />
 				</a>
 				
 				<a href="https://vk.com/bayrell" target="_blank" @class="header_network_icon">
-					<img src="/assets/App/resources/images/vk_64x64.png"/>
+					<img src="/assets/App/resources/images/vk_64x64.png" />
 				</a>
 			</div>
 		</div>

@@ -38,8 +38,9 @@ class ApiController
 	 */
 	static async string getDocumentContent(string path)
 	{
+		if (path == "/ru/") path = "/ru/main/index.html";
 		string chroot = rtl::getModulePath("App") ~ "/data/docs";
-		string document_path = path ~ ".txt";
+		string document_path = path;
 		string content = await rtl::readLocalFile(document_path, "utf8", chroot);
 		return content;
 	}
@@ -70,6 +71,7 @@ class ApiController
 		{
 			"content": content,
 			"title": (json != null) ? json.get("title", "") : "",
+			"description": (json != null) ? json.get("description", "") : "",
 		};
 	}
 	

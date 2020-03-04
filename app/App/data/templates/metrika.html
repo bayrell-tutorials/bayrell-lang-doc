@@ -1,0 +1,106 @@
+
+<!-- Yandex.Metrika counter --> <script type="text/javascript" > (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter47170665 = new Ya.Metrika({ id:47170665, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/47170665" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-111744486-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-111744486-2');
+  setTimeout(function(){
+    /* https://developers.google.com/analytics/devguides/collection/gtagjs/events?hl=ru */
+    if (typeof window['gtag'] === 'function')
+	{
+	  gtag('event','30sec',{'event_category':'bounce','event_action':'30sec'});
+	}
+	/* https://developers.google.com/analytics/devguides/collection/analyticsjs/events */
+	else if (typeof window['ga'] === 'function')
+	{
+	  ga('send',{'hitType':'event','eventCategory':'bounce','eventAction':'30sec'});
+	}
+  }, 30000);
+  //setTimeout(function(){ga('send', 'event', 'bounce', '30sec')}, 30000);
+  /*setTimeout(function(){gtag('event', 'bounce', '30sec')}, 30000);*/
+</script>
+
+
+<script type="text/javascript">(window.Image ? (new Image()) : document.createElement('img')).src = 'https://vk.com/rtrg?p=VK-RTRG-201191-5ruz1';</script>
+
+
+<!-- Facebook Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1655266484593149');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1655266484593149&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Facebook Pixel Code -->
+
+
+<script>
+yaCounter=null;
+
+/* Subscribe metrika event */
+function sentMetrikaEvent(event_name, data)
+{
+	/* https://developers.google.com/analytics/devguides/collection/gtagjs/events?hl=ru */
+	if (typeof window['gtag'] === 'function'){
+		gtag('event', data, {
+			'event_category': event_name,
+			'event_action': data
+		});
+	}
+	
+	/* https://developers.google.com/analytics/devguides/collection/analyticsjs/events */
+	else if (typeof window['ga'] === 'function'){
+		ga('send', {
+			hitType: 'event',
+			eventCategory: event_name,
+			eventAction: data
+		});
+	}
+	
+	/* Facebook */
+	if (typeof window['fbq'] === 'function'){
+		fbq('track', data);
+	}
+	
+	/* Yandex */
+	if ((typeof yaCounter) != 'undefined' && yaCounter != null)
+		yaCounter.reachGoal(data);
+	if ((typeof yaCounter47170665) != 'undefined' && yaCounter47170665 != null)
+		yaCounter47170665.reachGoal(data);
+	
+	console.log("metrika_event " + data);
+}
+
+subscribeSiteEvent('metrika_goal', function(data){
+	if (typeof data == 'undefined' || data == null) data = 'site_zakaz';
+	if (
+		[
+			'site_subscribe',
+			'site_register',
+			'site_zakaz',
+			'site_buy',
+			'site_callme',
+		]
+		.indexOf(data) == -1
+	)
+	{
+		data = 'site_zakaz';
+	}
+	sentMetrikaEvent('goal', data);
+});
+</script>
+

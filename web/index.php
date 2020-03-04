@@ -11,11 +11,15 @@ $basepath = dirname(__DIR__);
 include "../lib/Runtime/php/loader.php";
 $app = new Loader();
 
+/* Include enviroments */
+$env = include "../env.php";
+
 try
 {
 	$app
 		->main_class( "App.AppServer" )
 		->base_path( $basepath )
+		->set_env( $env )
 		->add_src( $basepath . "/app" )
 		->add_src( $basepath . "/lib" )
 		->run_web_request()
